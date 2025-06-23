@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prescription App</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-teal-100 via-white to-indigo-100 min-h-screen font-sans">
+
+  <!-- Navigation Bar -->
+  <nav class="bg-teal-700 text-white shadow-md">
+    <div class="container mx-auto flex justify-between items-center p-4">
+      <h1 class="text-2xl font-bold cursor-pointer" onclick="showPage('home')">💊 Prescription App</h1>
+      <div class="space-x-3">
+        <button onclick="showPage('register')" class="hover:text-gray-200">Register</button>
+        <button onclick="showPage('login')" class="hover:text-gray-200">Login</button>
+        <button onclick="showPage('dashboard')" class="hover:text-gray-200">Dashboard</button>
+        <button onclick="logoutUser()" id="logoutBtn" class="hidden bg-red-500 hover:bg-red-600 px-3 py-1 rounded">Logout</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Pages -->
+  <main class="container mx-auto px-4 py-8">
+
+    <!-- Home Page -->
+    <section id="homePage" class="text-center space-y-4">
+      <h2 class="text-4xl font-bold text-teal-800">Welcome to Prescription App</h2>
+      <p class="text-gray-700 text-lg">Please register or login to view your prescriptions.</p>
+    </section>
+
+    <!-- Register Page -->
+    <section id="registerPage" class="hidden max-w-md mx-auto bg-white p-6 mt-10 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-semibold text-teal-700 mb-4 text-center">User Registration</h2>
+      <form onsubmit="registerUser(event)" class="space-y-4">
+        <div>
+          <label class="block mb-1 font-medium">Username</label>
+          <input id="regUsername" class="w-full p-2 border border-teal-300 rounded" required />
+        </div>
+        <div>
+          <label class="block mb-1 font-medium">Password</label>
+          <input type="password" id="regPassword" class="w-full p-2 border border-teal-300 rounded" required />
+        </div>
+        <p id="regError" class="text-red-500 text-sm hidden"></p>
+        <button class="w-full bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded">Register</button>
+      </form>
+    </section>
+
+    <!-- Login Page -->
+    <section id="loginPage" class="hidden max-w-md mx-auto bg-white p-6 mt-10 rounded-lg shadow-lg">
+      <h2 class="text-2xl font-semibold text-teal-700 mb-4 text-center">User Login</h2>
+      <form onsubmit="loginUser(event)" class="space-y-4">
+        <div>
+          <label class="block mb-1 font-medium">Username</label>
+          <input id="loginUsername" class="w-full p-2 border border-teal-300 rounded" required />
+        </div>
+        <div>
+          <label class="block mb-1 font-medium">Password</label>
+          <input type="password" id="loginPassword" class="w-full p-2 border border-teal-300 rounded" required />
+        </div>
+        <p id="loginError" class="text-red-500 text-sm hidden"></p>
+        <button class="w-full bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded">Login</button>
+      </form>
+    </section>
+
+    <!-- Dashboard -->
+    <section id="dashboardPage" class="hidden bg-white p-6 mt-10 rounded-lg shadow-lg max-w-2xl mx-auto">
+      <h2 class="text-2xl font-bold text-teal-700 mb-4">Your Prescriptions</h2>
+      <p class="mb-4 text-gray-700">Welcome, <span id="loggedUser" class="font-semibold text-indigo-600"></span></p>
+      <ul id="prescriptionList" class="list-disc list-inside text-gray-800 space-y-2"></ul>
+    </section>
+  </main>
+
+  <!-- JavaScript -->
+  <script>
+    let users = [
+      {
+        username: "patientA",
+        password: "123",
+        prescriptions: [
+          "Amoxicillin 500mg, 1 tablet every 8 hours for 7 days",
+          "Ibuprofen 200mg, 1-2 tablets every 4-6 hours as needed"
+        ]
+      },
+      {
+        username: "healthSeeker",
+        password: "abc",
+        prescriptions: [
+          "Lisinopril 10mg, 1 tablet once daily",
+          "Paracetamol 500mg, 1 tablet every 6 hours"
+        ]
+      },
+      {
+        username: "medUser",
+        password: "pass",
+        prescriptions: [
+          "Omeprazole 20mg, 1 capsule before breakfast",
+          "Multivitamin, 1 tablet daily"
+        ]
+      }
+    ];
+
+    let loggedInUser = null;
+
+    function showPage(page) {
+      document.querySelectorAll("section").forEach(sec => sec.classList.add("hidden"));
+      document.getElementById(`${page}Page`).classList.remove("hidden");
+    }
+
+    function registerUser(event) {
+      event.preventDefault();
+      const username = document.getElementById("regUsername").value.trim();
+      const password = document.getElementById("regPassword").value.trim();
+      const errorMsg = document.getElementById("regError");
+
+      if (!/^[a-zA-Z]/.test(username)) {
+        errorMsg.textContent = "Username must start with a letter.";
+        errorMsg.classList.remove("hidden");
+        return;
+      }
+
+      if (users.some(u => u.username.toLowerCase() === username.toLowerCase())) {
+        errorMsg.textContent = "Username already exists.";
+        errorMsg.classList.remove("hidden");
+        return;
+      }
+
+      users.push({
+        username,
+        password,
+        prescriptions: [
+          "Paracetamol 500mg, 1 tablet every 6 hours as needed"
+        ]
+      });
+
+      errorMsg.classList.add("hidden");
+      alert("Registration successful! Please login.");
+      showPage("login");
+    }
+
+    function loginUser(event) {
+      event.preventDefault();
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      const errorMsg = document.getElementById("loginError");
+
+      const user = users.find(
+        u => u.username.toLowerCase() === username.toLowerCase() && u.password === password
+      );
+
+      if (!user) {
+        errorMsg.textContent = "Invalid credentials.";
+        errorMsg.classList.remove("hidden");
+        return;
+      }
+
+      loggedInUser = user;
+      document.getElementById("loggedUser").textContent = user.username;
+      document.getElementById("prescriptionList").innerHTML =
+        user.prescriptions.map(p => `<li>${p}</li>`).join("");
+
+      errorMsg.classList.add("hidden");
+      document.getElementById("logoutBtn").classList.remove("hidden");
+      showPage("dashboard");
+    }
+
+    function logoutUser() {
+      loggedInUser = null;
+      document.getElementById("logoutBtn").classList.add("hidden");
+      showPage("home");
+    }
+
+    // Show home on initial load
+    showPage("home");
+  </script>
+</body>
+</html>
